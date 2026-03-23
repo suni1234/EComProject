@@ -1,0 +1,85 @@
+# ─── Maven build output ───────────────────────
+# Never push compiled code to GitHub
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# ─── IDE files ────────────────────────────────
+# STS / Eclipse
+.settings/
+.classpath
+.project
+.factorypath
+
+# IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Mac
+.DS_Store
+
+# ─── Secrets — NEVER push to GitHub! ─────────
+# AWS credentials / keys
+*.pem
+*.key
+*.p12
+secrets.yml
+application-prod.yml
+application-local.yml
+application-aws.yml
+
+# ─── Logs ─────────────────────────────────────
+*.log
+logs/
+
+# ─── Spring Boot ──────────────────────────────
+spring-shell.log
+```
+
+---
+
+### Why Each Section Matters
+```
+target/
+  └── Maven builds your JAR here
+      100MB+ of compiled files
+      No need on GitHub ❌
+
+*.pem
+  └── Your AWS EC2 key file
+      If pushed → anyone can
+      SSH into your EC2 🚨
+
+application-prod.yml
+  └── Contains real AWS credentials
+      DB passwords, API keys
+      NEVER push to GitHub 🚨
+
+.settings/ .classpath .project
+  └── STS/Eclipse auto-generated
+      Different per developer machine
+      Causes conflicts on GitHub ❌
+
+*.log
+  └── Runtime log files
+      Not needed in source code ❌
+```
+
+---
+
+### Your `application.yml` is Safe ✅
+```
+application.yml          ← PUSH this ✅
+  └── uses ${ENV_VARS}
+  └── no real secrets
+  └── placeholders only
+
+application-prod.yml     ← NEVER push ❌
+  └── real AWS keys
+  └── real passwords
+  └── add to .gitignore

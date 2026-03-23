@@ -1,0 +1,91 @@
+
+
+
+
+
+server:
+  port: 8082
+
+spring:
+  application:
+    name: fgw-service
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}  ← env var, default localhost
+      port: ${SPRING_REDIS_PORT:6379}
+
+aws:
+  region: us-east-1
+  account-id: 745791801485
+  cognito:
+    user-pool-id: us-east-1_QANRw4Vko
+    client-id: 62h0s7mqg1ukhuodh75ae1k9oo
+    issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_QANRw4Vko
+  secrets-manager:
+    secret-name: jwt-public-key
+    secret-arn: arn:aws:secretsmanager:us-east-1:745791801485:secret:jwt-public-key-tuqT71
+  kms:
+    key-id: 64134bd9-8ee7-43fb-8c60-7826a0cb53aa
+    key-arn: arn:aws:kms:us-east-1:745791801485:key/64134bd9-8ee7-43fb-8c60-7826a0cb53aa
+  iam:
+    role-admin:   arn:aws:iam::745791801485:role/FGW-AdminRole
+    role-editor:  arn:aws:iam::745791801485:role/FGW-EditorRole
+    role-viewer:  arn:aws:iam::745791801485:role/FGW-ViewerRole
+    role-default: arn:aws:iam::745791801485:role/FGW-DefaultRole
+
+auth-service:
+  url: http://localhost:8081
+
+logging:
+  level:
+    com.fgw: DEBUG
+    software.amazon.awssdk: WARN
+
+    
+    
+
+
+
+rate-limit:
+  requests-per-minute: ${RATE_LIMIT_RPM:5}
+
+
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
