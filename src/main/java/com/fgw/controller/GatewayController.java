@@ -24,6 +24,8 @@ import java.util.Map;
 @Slf4j
 @RestController
 public class GatewayController {
+	
+	
 
     private final JwtTokenValidator tokenValidator;
     private final StsCredentialService stsCredentialService;
@@ -91,6 +93,8 @@ public class GatewayController {
      */
     @GetMapping("/api/credentials")
     public ResponseEntity<Map<String, Object>> credentials(Authentication auth) {
+    	
+    	 System.out.println("hiiiiiiii");
         Claims claims   = (Claims) auth.getDetails();
         String rawToken = (String) auth.getCredentials();
         String sub      = tokenValidator.getSub(claims);
