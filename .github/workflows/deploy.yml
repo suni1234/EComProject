@@ -5,19 +5,16 @@ on:
     branches:
       - main
 
-# ── ADD THIS: Global env variables used across all jobs ──────────────────────
 env:
-  AWS_REGION: ${{ secrets.AWS_REGION }}
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
   ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
-  # ── YOUR EXISTING JOB (no changes) ─────────────────────────────────────────
+  # ── JOB 1 — Build & Test ────────────────────────────────────────────────────
   build:
     name: Build and Test
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,11 +31,11 @@ jobs:
       - name: Run Tests
         run: mvn test
 
-  # ── ADD JOB 2: Build Docker Image & Push to ECR ────────────────────────────
+  # ── JOB 2 — Docker Build & Push to ECR ─────────────────────────────────────
   docker-build-push:
     name: Build Docker Image & Push to ECR
     runs-on: ubuntu-latest
-    needs: build                        # Runs only if build job passes
+    needs: build
 
     outputs:
       image: ${{ steps.build-image.outputs.image }}
@@ -52,7 +49,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}         # ✅ Direct from secrets
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -68,11 +65,11 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-  # ── ADD JOB 3: Deploy to ECS ────────────────────────────────────────────────
+  # ── JOB 3 — Deploy to ECS ───────────────────────────────────────────────────
   deploy:
     name: Deploy to AWS ECS
     runs-on: ubuntu-latest
-    needs: docker-build-push            # Runs only if Docker push succeeds
+    needs: docker-build-push
 
     steps:
       - name: Checkout code
@@ -83,7 +80,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}         # ✅ Direct from secrets
 
       - name: Download current ECS task definition
         run: |
@@ -97,7 +94,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: fgw-service        # Must match container name in ECS
+          container-name: fgw-service
           image: ${{ needs.docker-build-push.outputs.image }}
 
       - name: Deploy updated task definition to ECS
