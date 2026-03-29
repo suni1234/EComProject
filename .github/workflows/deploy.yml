@@ -95,7 +95,7 @@ jobs:
         with:
           task-definition: task-definition.json
           container-name: fgw-service
-          image: ${{ needs.docker-build-push.outputs.image }}
+          image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:latest
 
       - name: Deploy updated task definition to ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
