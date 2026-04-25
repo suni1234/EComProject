@@ -1,57 +1,3 @@
-
-
-
-
-#
-#server:
-#  port: 8082
-#
-#spring:
-#  application:
-#    name: fgw-service
-#  data:
-#    redis:
-#      host: ${SPRING_REDIS_HOST:localhost}  ← env var, default localhost
-#      port: ${SPRING_REDIS_PORT:6379}
-#
-#aws:
-#  region: us-east-1
-#  account-id: 745791801485
-#  cognito:
-#    user-pool-id: us-east-1_QANRw4Vko
-#    client-id: 62h0s7mqg1ukhuodh75ae1k9oo
-#    issuer-uri: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_QANRw4Vko
-#  secrets-manager:
-#    secret-name: jwt-public-key
-#    secret-arn: arn:aws:secretsmanager:us-east-1:745791801485:secret:jwt-public-key-tuqT71
-#  kms:
-#    key-id: 64134bd9-8ee7-43fb-8c60-7826a0cb53aa
-#    key-arn: arn:aws:kms:us-east-1:745791801485:key/64134bd9-8ee7-43fb-8c60-7826a0cb53aa
-#  iam:
-#    role-admin:   arn:aws:iam::745791801485:role/FGW-AdminRole
-#    role-editor:  arn:aws:iam::745791801485:role/FGW-EditorRole
-#    role-viewer:  arn:aws:iam::745791801485:role/FGW-ViewerRole
-#    role-default: arn:aws:iam::745791801485:role/FGW-DefaultRole
-#
-#auth-service:
-#  url: http://localhost:8081
-#
-#logging:
-#  level:
-#    com.fgw: DEBUG
-#    software.amazon.awssdk: WARN
-#
-#    
-#    
-#
-#
-#
-#rate-limit:
-#  requests-per-minute: ${RATE_LIMIT_RPM:5}
-#
-#
-  
-    
 server:
   port: 8082
 
@@ -60,12 +6,12 @@ spring:
     name: fgw-service
   data:
     redis:
-      host: ${SPRING_REDIS_HOST}          # ← No default, must be set in ECS
+      host: ${SPRING_REDIS_HOST}
       port: ${SPRING_REDIS_PORT:6379}
 
 aws:
   region: ${AWS_REGION:us-east-1}
-  account-id: ${AWS_ACCOUNT_ID}           # ← From ECS Task Definition env var
+  account-id: ${AWS_ACCOUNT_ID}
   cognito:
     user-pool-id: ${COGNITO_USER_POOL_ID}
     client-id: ${COGNITO_CLIENT_ID}
@@ -77,61 +23,31 @@ aws:
     key-id: ${KMS_KEY_ID}
     key-arn: ${KMS_KEY_ARN}
   iam:
-    role-admin:   ${IAM_ROLE_ADMIN}
-    role-editor:  ${IAM_ROLE_EDITOR}
-    role-viewer:  ${IAM_ROLE_VIEWER}
+    role-admin: ${IAM_ROLE_ADMIN}
+    role-editor: ${IAM_ROLE_EDITOR}
+    role-viewer: ${IAM_ROLE_VIEWER}
     role-default: ${IAM_ROLE_DEFAULT}
 
 auth-service:
-  url: ${AUTH_SERVICE_URL}                # ← ECS service discovery URL
+  url: ${AUTH_SERVICE_URL}
 
 logging:
   level:
-    com.fgw: ${LOG_LEVEL_APP:INFO}        # ← DEBUG only in dev, INFO in prod
+    com.fgw: ${LOG_LEVEL_APP:INFO}
     software.amazon.awssdk: WARN
 
 rate-limit:
-  requests-per-minute: ${RATE_LIMIT_RPM:5}    
-    
-    
-    
-    
+  requests-per-minute: ${RATE_LIMIT_RPM:5}
+
+# Actuator Health Check
 management:
   endpoints:
     web:
+      base-path: /actuator
       exposure:
-        include: health
+        include: health, info
   endpoint:
     health:
-      show-details: always    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+      show-details: always
+      probes:
+        enabled: true
