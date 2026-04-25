@@ -9,6 +9,9 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
+# ✅ Add curl for health checks!
+RUN apk add --no-cache curl
+
 # Copy jar from builder stage
 COPY --from=builder /app/target/fgw-service-1.0.0.jar app.jar
 
@@ -17,5 +20,3 @@ EXPOSE 8082
 
 # Run
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
-
