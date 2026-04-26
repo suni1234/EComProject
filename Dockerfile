@@ -20,3 +20,4 @@ EXPOSE 8082
 
 # Run
 ENTRYPOINT ["java", "-jar", "app.jar"]
+

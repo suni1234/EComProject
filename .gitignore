@@ -33,6 +33,14 @@ application-prod.yml
 application-local.yml
 application-aws.yml
 
+# Local config - never commit!
+
+application-local.yaml
+*.env
+.env
+
+
+
 # ─── Logs ─────────────────────────────────────
 *.log
 logs/

@@ -1,7 +1,12 @@
 server:
   port: 8082
-
+  
+  
 spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}  
+
+
   application:
     name: fgw-service
   data:
@@ -39,7 +44,6 @@ logging:
 rate-limit:
   requests-per-minute: ${RATE_LIMIT_RPM:5}
 
-# Actuator Health Check
 management:
   endpoints:
     web:
