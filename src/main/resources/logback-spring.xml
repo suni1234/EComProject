@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  FILE: src/main/resources/logback-spring.xml
+  ─────────────────────────────────────────────────────────────────────────
+  WHY THIS FILE EXISTS:
+    Splunk needs structured JSON logs to parse fields automatically.
+    This file switches log format based on Spring profile:
+
+    prod / staging  →  JSON format  →  CloudWatch  →  Firehose  →  Splunk
+    local           →  Plain text   →  your console (same as before)
+
+  WHAT SPLUNK RECEIVES (one JSON object per log line):
+  {
+    "timestamp":  "2026-04-26T14:23:01.234Z",
+    "level":      "INFO",
+    "logger":     "com.fgw.filter.JwtAuthFilter",
+    "thread":     "http-nio-8082-exec-3",
+    "message":    "JWT authenticated: user=john groups=[admin]",
+    "service":    "fgw-service",
+    "sourcetype": "spring_boot",
+    "traceId":    "a3f2b19c44d81e00",   ← from MdcLoggingFilter (File 4)
+    "httpMethod": "GET",                 ← from MdcLoggingFilter (File 4)
+    "httpPath":   "/api/profile",        ← from MdcLoggingFilter (File 4)
+    "clientIp":   "10.0.1.45"           ← from MdcLoggingFilter (File 4)
+  }
+
+  REQUIRES: logstash-logback-encoder dependency added in File 1 (pom.xml)
+  ─────────────────────────────────────────────────────────────────────────
+-->
+<configuration>
+
+  <!-- ── JSON appender: used in prod and staging profiles ─────────── -->
+  <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+      <fieldNames>
+        <timestamp>timestamp</timestamp>
+        <message>message</message>
+        <logger>logger</logger>
+        <thread>thread</thread>
+        <level>level</level>
+        <levelValue>[ignore]</levelValue>
+      </fieldNames>
+      <!-- Static fields on every event — lets Splunk filter by service/sourcetype -->
+      <customFields>{"service":"fgw-service","sourcetype":"spring_boot"}</customFields>
+      <!-- MDC fields (traceId, httpMethod, httpPath, clientIp) are auto-included
+           They come from MdcLoggingFilter.java (File 4 of 6) -->
+      <includeMdc>true</includeMdc>
+      <shortenedLoggerNameLength>40</shortenedLoggerNameLength>
+    </encoder>
+  </appender>
+
+  <!-- ── Plain text appender: used locally (same as your current output) ── -->
+  <appender name="PLAIN_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <!-- ── PROD / STAGING: JSON → CloudWatch → Firehose → Splunk ─────── -->
+  <springProfile name="prod,staging">
+    <root level="INFO">
+      <appender-ref ref="JSON_CONSOLE"/>
+    </root>
+    <!-- Your application packages — same log levels as application.yml -->
+    <logger name="com.fgw"                      level="INFO" additivity="false">
+      <appender-ref ref="JSON_CONSOLE"/>
+    </logger>
+    <logger name="software.amazon.awssdk"       level="WARN" additivity="false">
+      <appender-ref ref="JSON_CONSOLE"/>
+    </logger>
+    <logger name="org.springframework.security" level="WARN" additivity="false">
+      <appender-ref ref="JSON_CONSOLE"/>
+    </logger>
+  </springProfile>
+
+  <!-- ── LOCAL: plain text (your dev experience is unchanged) ────────── -->
+  <springProfile name="local">
+    <root level="INFO">
+      <appender-ref ref="PLAIN_CONSOLE"/>
+    </root>
+    <logger name="com.fgw"                level="DEBUG" additivity="false">
+      <appender-ref ref="PLAIN_CONSOLE"/>
+    </logger>
+    <logger name="software.amazon.awssdk" level="WARN" additivity="false">
+      <appender-ref ref="PLAIN_CONSOLE"/>
+    </logger>
+  </springProfile>
+
+</configuration>
