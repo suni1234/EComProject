@@ -7,5 +7,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class FgwServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(FgwServiceApplication.class, args);
+        
+        
+        
+        
     }
 }
